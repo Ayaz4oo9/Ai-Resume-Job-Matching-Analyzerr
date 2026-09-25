@@ -1,18 +1,14 @@
 import os
 import gradio as gr
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
-import torch
+from optimum.onnxruntime import ORTModelForSequenceClassification
+from transformers import AutoTokenizer
+import numpy as np
 from pypdf import PdfReader
 import docx2txt
 
-MODEL_ID = "Ayaz4oo9/resume-fit-classifier"
-model = AutoModelForSequenceClassification.from_pretrained(
-    MODEL_ID,
-    low_cpu_mem_usage=True,
-    dtype=torch.float32
-)
+MODEL_ID = "Ayaz4oo9/resume-fit-classifier-onnx"
+model = ORTModelForSequenceClassification.from_pretrained(MODEL_ID)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
-model.eval()
 
 labels = ["No Fit", "Potential Fit", "Good Fit"]
 
@@ -32,9 +28,10 @@ def predict(resume_file, job_description):
     resume_text = extract_text(resume_file.name)
     text = resume_text + " [SEP] " + job_description
     inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
-    with torch.no_grad():
-        logits = model(**inputs).logits
-    probs = torch.softmax(logits, dim=1)[0]
+    outputs = model(**inputs)
+    logits = outputs.logits.detach().numpy()[0]
+    exp = np.exp(logits - np.max(logits))
+    probs = exp / exp.sum()
     return {labels[i]: float(probs[i]) for i in range(3)}
 
 demo = gr.Interface(
