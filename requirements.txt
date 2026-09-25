@@ -3,3 +3,5 @@ torch
 transformers
 gradio
 accelerate
+pypdf
+docx2txt
