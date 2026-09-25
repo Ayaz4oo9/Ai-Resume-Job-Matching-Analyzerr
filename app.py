@@ -4,7 +4,11 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 
 MODEL_ID = "Ayaz4oo9/resume-fit-classifier"
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_ID)
+model = AutoModelForSequenceClassification.from_pretrained(
+    MODEL_ID,
+    low_cpu_mem_usage=True,
+    torch_dtype=torch.float32
+)
 tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
 model.eval()
 
