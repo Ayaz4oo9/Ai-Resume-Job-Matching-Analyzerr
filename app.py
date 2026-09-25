@@ -45,4 +45,15 @@ demo = gr.Interface(
     description="Upload a resume and paste a job description to see how well they match."
 )
 
+demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))demo = gr.Interface(
+    fn=predict,
+    inputs=[
+        gr.File(label="Upload Resume (PDF or DOCX)", file_types=[".pdf", ".docx"]),
+        gr.Textbox(lines=8, label="Job Description")
+    ],
+    outputs=gr.Label(num_top_classes=3, label="Fit Classification"),
+    title="Resume–Job Fit Classifier",
+    description="Upload a resume and paste a job description to see how well they match."
+)
+
 demo.launch(server_name="0.0.0.0", server_port=int(os.environ.get("PORT", 7860)))
