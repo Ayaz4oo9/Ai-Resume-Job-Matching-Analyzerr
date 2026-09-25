@@ -27,9 +27,9 @@ def predict(resume_file, job_description):
         return {"Error": 1.0}
     resume_text = extract_text(resume_file.name)
     text = resume_text + " [SEP] " + job_description
-    inputs = tokenizer(text, return_tensors="pt", truncation=True, padding=True, max_length=512)
+    inputs = tokenizer(text, return_tensors="np", truncation=True, padding=True, max_length=512)
     outputs = model(**inputs)
-    logits = outputs.logits.detach().numpy()[0]
+    logits = outputs.logits[0]
     exp = np.exp(logits - np.max(logits))
     probs = exp / exp.sum()
     return {labels[i]: float(probs[i]) for i in range(3)}
