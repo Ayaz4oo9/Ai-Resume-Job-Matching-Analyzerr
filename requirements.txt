@@ -3,3 +3,4 @@ transformers
 gradio
 pypdf
 docx2txt
+numpy
